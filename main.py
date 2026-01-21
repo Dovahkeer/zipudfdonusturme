@@ -7,19 +7,6 @@ from tkinter import filedialog, messagebox
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 
-def find_desktop_dir() -> str | None:
-    candidates = [
-        os.path.join(os.path.expanduser("~"), "Desktop"),
-        os.path.join(os.environ.get("USERPROFILE", ""), "Desktop"),
-        os.path.join(os.environ.get("OneDrive", ""), "Desktop"),
-    ]
-
-    for path in candidates:
-        if path and os.path.isdir(path):
-            return path
-    return None
-
-
 def resource_path(relative: str) -> str:
     base_path = getattr(sys, "_MEIPASS", None)
     if base_path:
@@ -40,16 +27,10 @@ def choose_save_path(zip_path: str, parent: tk.Misc) -> str | None:
     )
 
 
-def convert_zip_to_udf(zip_path: str, dest_dir: str | None, parent: tk.Misc) -> str | None:
-    base_name = os.path.splitext(os.path.basename(zip_path))[0]
-    udf_name = f"{base_name}.udf"
-
-    if dest_dir and os.path.isdir(dest_dir):
-        dest_path = os.path.join(dest_dir, udf_name)
-    else:
-        dest_path = choose_save_path(zip_path, parent)
-        if not dest_path:
-            return None
+def convert_zip_to_udf(zip_path: str, parent: tk.Misc) -> str | None:
+    dest_path = choose_save_path(zip_path, parent)
+    if not dest_path:
+        return None
 
     final_dir = os.path.dirname(dest_path)
     if final_dir and not os.path.isdir(final_dir):
@@ -69,8 +50,7 @@ def process_zip(zip_path: str, parent: tk.Misc) -> str | None:
     if not os.path.isfile(zip_path):
         raise FileNotFoundError("Dosya bulunamadı")
 
-    desktop_dir = find_desktop_dir()
-    return convert_zip_to_udf(zip_path, desktop_dir, parent)
+    return convert_zip_to_udf(zip_path, parent)
 
 
 def handle_zip_path(zip_path: str, root: tk.Misc) -> None:
@@ -124,7 +104,7 @@ def main():
     heading = tk.Label(root, text="ZIP yükle, UDF indir", font=("Segoe UI", 12, "bold"))
     heading.pack(pady=(16, 8))
 
-    desc = tk.Label(root, text="ZIP seç veya sürükleyip bırak; .udf masaüstüne kaydedilir.")
+    desc = tk.Label(root, text="ZIP seç veya sürükleyip bırak; .udf için konum seçilecek.")
     desc.pack(pady=(0, 8))
 
     drop_zone = tk.Label(
